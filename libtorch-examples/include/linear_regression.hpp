@@ -48,8 +48,8 @@ public:
             std::cout << "Epoch [" << epoch << "/" << numEpochs << "]";
             std::cout << ", Loss: " << loss.item<double>() << std::endl;
             lossHistory.push_back(loss.item<double>());
-            std::string modelCheckpoint = checkpointDirectory + "/model/" + "model_" + std::to_string(epoch) + ".pt";
-            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/" + "optimizer_" + std::to_string(epoch) + ".pt";
+            std::string modelCheckpoint = checkpointDirectory + "/model/linear_regression_model_" + std::to_string(epoch) + ".pt";
+            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/linear_regression_optimizer_" + std::to_string(epoch) + ".pt";
             torch::save(*model, modelCheckpoint);
             torch::save(*optimizer, optimizerCheckpoint);
         }
