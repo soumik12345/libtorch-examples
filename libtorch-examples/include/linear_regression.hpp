@@ -19,16 +19,19 @@ public:
     torch::Tensor xTrain;
     torch::Tensor yTrain;
     std::vector<float> lossHistory;
+    torch::Device *device;
     torch::nn::Linear *model;
     torch::optim::SGD *optimizer;
 
     LinearRegression(int64_t dataLow, int64_t dataHigh, int datasetSize) {
-        xTrain = torch::randint(dataLow, dataHigh, {datasetSize, 1});
-        yTrain = torch::randint(dataLow, dataHigh, {datasetSize, 1});
+        device = new torch::Device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
+        xTrain = torch::randint(dataLow, dataHigh, {datasetSize, 1}).to(*device);
+        yTrain = torch::randint(dataLow, dataHigh, {datasetSize, 1}).to(*device);
     }
 
     void compile(double learningRate) {
         model = new torch::nn::Linear(1, 1);
+        (*model)->to(*device);
         optimizer = new torch::optim::SGD((*model)->parameters(), learningRate);
     }
 
@@ -45,8 +48,10 @@ public:
             std::cout << "Epoch [" << epoch << "/" << numEpochs << "]";
             std::cout << ", Loss: " << loss.item<double>() << std::endl;
             lossHistory.push_back(loss.item<double>());
-            torch::save(*model, checkpointDirectory + "/model/" + "model_" + std::to_string(epoch) + ".pt");
-            torch::save(*optimizer, checkpointDirectory + "/optimizer/" + "optimizer_" + std::to_string(epoch) + ".pt");
+            std::string modelCheckpoint = checkpointDirectory + "/model/" + "model_" + std::to_string(epoch) + ".pt";
+            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/" + "optimizer_" + std::to_string(epoch) + ".pt";
+            torch::save(*model, modelCheckpoint);
+            torch::save(*optimizer, optimizerCheckpoint);
         }
         std::cout << "Training Done!!!" << std::endl;
     }

@@ -9,9 +9,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void createDirectory(std::string directory) {
+void createDirectory(const std::string& directory) {
     if (mkdir(directory.c_str(), 0777) == -1)
-        std::cerr << "Error :  " << strerror(errno) << std::endl;
+        std::cerr << "Unable to create Directory " << directory << " :  " << strerror(errno) << std::endl;
     else
         std::cout << directory << " created" << std::endl;
 }
