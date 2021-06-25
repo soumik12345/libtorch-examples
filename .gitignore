@@ -1,3 +1,6 @@
+data/
 .idea/
+build/
+.DS_Store
 libtorch/
 cmake-build-debug/
