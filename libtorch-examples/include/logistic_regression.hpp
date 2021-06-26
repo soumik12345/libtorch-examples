@@ -85,7 +85,7 @@ public:
         std::cout << "Training Completed!!!" << std::endl;
     }
 
-    void evaluate(const std::string& mnistDataPath, int64_t batchSize) {
+    void evaluate(const std::string& mnistDataPath, int64_t batchSize) const {
         auto testDataset = torch::data::datasets::MNIST(mnistDataPath)
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
@@ -114,8 +114,8 @@ public:
 
         std::cout << "Evaluation Completed!!!" << std::endl;
 
-        auto testAccuracy = static_cast<double>(numCorrect) / numTestSamples;
-        auto meanLoss = totalLoss / numTestSamples;
+        auto testAccuracy = static_cast<double>(numCorrect) / (double)numTestSamples;
+        auto meanLoss = totalLoss / (double)numTestSamples;
 
         std::cout << "On Test Dataset, Mean Loss: " << meanLoss << ", Accuracy: " << testAccuracy << std::endl;
     }
