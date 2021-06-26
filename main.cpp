@@ -1,6 +1,6 @@
-#include "logistic_regression.hpp"
+#include "multi_layered_perceptron.hpp"
 
 int main() {
-    LogisticRegressionDemo();
+    MLPClassifierDemo();
     return 0;
 }

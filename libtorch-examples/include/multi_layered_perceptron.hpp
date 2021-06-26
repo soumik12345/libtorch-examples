@@ -2,8 +2,8 @@
 // Created by Soumik Rakshit on 26/06/21.
 //
 
-#ifndef LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
-#define LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
+#ifndef LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#define LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
 
 #include <iostream>
 #include <vector>
@@ -12,25 +12,46 @@
 
 #include "utils.hpp"
 
-class LogisticRegression {
+struct MLP : torch::nn::Module {
+
+    torch::nn::Linear *denseLayer1;
+    torch::nn::Linear *denseLayer2;
+
+    MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) {
+        denseLayer1 = new torch::nn::Linear(inputSize, hiddenSize);
+        denseLayer2 = new torch::nn::Linear(hiddenSize, numClasses);
+        register_module("denseLayer1", (*denseLayer1));
+        register_module("denseLayer2", (*denseLayer2));
+    }
+
+    torch::Tensor forward(torch::Tensor x) const {
+        x = (*denseLayer1)->forward(x);
+        x = torch::nn::functional::relu(x);
+        x = (*denseLayer2)->forward(x);
+        return x;
+    }
+};
+
+
+class MLPClassifier {
 
 public:
 
     torch::Device *device;
-    torch::nn::Linear *model{};
+    MLP* model{};
     torch::optim::SGD *optimizer{};
     std::vector<double> lossHistory;
     std::vector<double> accuracyHistory;
 
-    LogisticRegression() {
+    MLPClassifier() {
         device = new torch::Device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
     }
 
-    void compile(int64_t inputImageSize, double learningRate) {
-        model = new torch::nn::Linear(inputImageSize, 10);
-        (*model)->to(*device);
+    void compile(int64_t inputImageSize, int64_t hiddenSize, double learningRate) {
+        model = new MLP(inputImageSize, hiddenSize, 10);
+        (*model).to(*device);
         optimizer = new torch::optim::SGD(
-                (*model)->parameters(),
+                (*model).parameters(),
                 torch::optim::SGDOptions(learningRate));
     }
 
@@ -61,7 +82,7 @@ public:
             for (auto& batch : *trainLoader) {
                 auto data = batch.data.view({batchSize, -1}).to(*device);
                 auto target = batch.target.to(*device);
-                auto output = (*model)->forward(data);
+                auto output = (*model).forward(data);
                 auto loss = torch::nn::functional::cross_entropy(output, target);
                 batchLoss += loss.item<double>() * (double)data.size(0);
                 auto prediction = output.argmax(1);
@@ -74,10 +95,10 @@ public:
             auto batchAccuracy = static_cast<double>(numCorrect) / (double)numTrainSamples;
             lossHistory.push_back(meanBatchLoss);
             accuracyHistory.push_back(batchAccuracy);
-            std::string modelCheckpoint = checkpointDirectory + "/model/logistic_regression_model_" + std::to_string(epoch) + ".pt";
-            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
-            torch::save(*model, modelCheckpoint);
-            torch::save(*optimizer, optimizerCheckpoint);
+//            std::string modelCheckpoint = checkpointDirectory + "/model/logistic_regression_model_" + std::to_string(epoch) + ".pt";
+//            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
+//            torch::save(*model, modelCheckpoint);
+//            torch::save(*optimizer, optimizerCheckpoint);
             std::cout << "Epoch [" << epoch << "/" << numEpochs << "]";
             std::cout << ", Loss: " << batchLoss << ", Accuracy: " << batchAccuracy << std::endl;
         }
@@ -86,6 +107,7 @@ public:
     }
 
     void evaluate(const std::string& mnistDataPath, int64_t batchSize) const {
+
         auto testDataset = torch::data::datasets::MNIST(mnistDataPath)
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
@@ -94,7 +116,7 @@ public:
         auto testLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 std::move(testDataset), batchSize);
 
-        (*model)->eval();
+        (*model).eval();
         torch::NoGradGuard noGrad;
 
         double totalLoss = 0.0;
@@ -105,7 +127,7 @@ public:
         for(auto& batch: *testLoader) {
             auto data = batch.data.view({batchSize, -1}).to(*device);
             auto target = batch.target.to(*device);
-            auto output = (*model)->forward(data);
+            auto output = (*model).forward(data);
             auto loss = torch::nn::functional::cross_entropy(output, target);
             totalLoss += loss.item<double>() * (double)data.size(0);
             auto prediction = output.argmax(1);
@@ -121,12 +143,11 @@ public:
     }
 };
 
-inline void LogisticRegressionDemo() {
-    LogisticRegression logisticRegression;
-    logisticRegression.compile(784, 0.001);
-    logisticRegression.train(
-            "../data/mnist", 100, 5, "checkpoints");
-    logisticRegression.evaluate("../data/mnist", 100);
+inline void MLPClassifierDemo() {
+    MLPClassifier classifier;
+    classifier.compile(784, 500, 0.001);
+    classifier.train("../data/mnist", 100, 5, "checkpoints");
+    classifier.evaluate("../data/mnist", 100);
 }
 
-#endif //LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
+#endif //LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
