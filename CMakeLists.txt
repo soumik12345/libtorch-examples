@@ -10,48 +10,32 @@ if(INSTALL_TORCH)
         message("-- MacOSX Detected")
         message("-- Downloading LibTorch")
         file(DOWNLOAD
-                https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.9.0.zip
-                ${CMAKE_SOURCE_DIR}/libtorch-macos-1.9.0.zip)
+                https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.8.1.zip
+                ${CMAKE_SOURCE_DIR}/libtorch.zip)
         message("-- Extracting LibTorch")
-        execute_process (
-                COMMAND bash -c "unzip ${CMAKE_SOURCE_DIR}/libtorch-macos-1.9.0.zip -d ${CMAKE_SOURCE_DIR}"
-                OUTPUT_VARIABLE outVar
-        )
-        execute_process (
-                COMMAND bash -c "rm ${CMAKE_SOURCE_DIR}/libtorch-macos-1.9.0.zip"
-                OUTPUT_VARIABLE outVar
-        )
     else()
         message("-- Linux Detected")
         message("-- Downloading LibTorch")
         if(CUDA)
             file(DOWNLOAD
-                https://download.pytorch.org/libtorch/cu111/libtorch-shared-with-deps-1.9.0%2Bcu111.zip
-                ${CMAKE_CURRENT_SOURCE_DIR}/libtorch-shared-with-deps-1.9.0%2Bcu111.zip)
+                    https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip
+                ${CMAKE_CURRENT_SOURCE_DIR}/libtorch.zip)
             message("-- Extracting LibTorch")
-            execute_process (
-                    COMMAND bash -c "unzip ${CMAKE_SOURCE_DIR}/libtorch-shared-with-deps-1.9.0%2Bcu111.zip -d ${CMAKE_SOURCE_DIR}"
-                    OUTPUT_VARIABLE outVar
-            )
-            execute_process (
-                    COMMAND bash -c "rm ${CMAKE_SOURCE_DIR}/libtorch-shared-with-deps-1.9.0%2Bcu111.zip"
-                    OUTPUT_VARIABLE outVar
-            )
         else()
             file(DOWNLOAD
-                    https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip
+                    https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip
                 ${CMAKE_CURRENT_SOURCE_DIR}/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip)
             message("-- Extracting LibTorch")
-            execute_process (
-                    COMMAND bash -c "unzip ${CMAKE_SOURCE_DIR}/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip -d ${CMAKE_SOURCE_DIR}"
-                    OUTPUT_VARIABLE outVar
-            )
-            execute_process (
-                    COMMAND bash -c "rm ${CMAKE_SOURCE_DIR}/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip"
-                    OUTPUT_VARIABLE outVar
-            )
         endif()
     endif()
+    execute_process (
+            COMMAND bash -c "unzip ${CMAKE_SOURCE_DIR}/libtorch.zip -d ${CMAKE_SOURCE_DIR}"
+            OUTPUT_VARIABLE outVar
+    )
+    execute_process (
+            COMMAND bash -c "rm ${CMAKE_SOURCE_DIR}/libtorch.zip"
+            OUTPUT_VARIABLE outVar
+    )
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
