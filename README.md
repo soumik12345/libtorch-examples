@@ -14,3 +14,5 @@
 1. [Linear Regression](./libtorch-examples/include/linear_regression.hpp)
 
 2. [Logistic Regression](./libtorch-examples/include/logistic_regression.hpp)
+
+3. [Multi-Layered Perceptron](./libtorch-examples/include/multi_layered_perceptron.hpp)
