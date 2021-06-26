@@ -1,6 +1,6 @@
-#include "linear_regression.hpp"
+#include "logistic_regression.hpp"
 
 int main() {
-    LinearRegressionDemo();
+    LogisticRegressionDemo();
     return 0;
 }
