@@ -4,6 +4,7 @@ project(libtorch-examples)
 option(DOWNLOAD_DATASETS "Automatically download required datasets at build-time." ON)
 option(INSTALL_TORCH "Automatically download and install libtorch." ON)
 option(CUDA "Download GPU Version" ON)
+option(DOWNLOAD_MNIST, "Download the MNIST Dataset during build" ON)
 
 if(INSTALL_TORCH)
     if(APPLE)
@@ -55,24 +56,25 @@ if(DOWNLOAD_DATASETS)
     set(DATA_DIR ${CMAKE_SOURCE_DIR}/data CACHE PATH "Dataset download directory")
     file(MAKE_DIRECTORY ${DATA_DIR})
 
-    # MNIST Dataset
-    file(MAKE_DIRECTORY ${DATA_DIR}/mnist)
-    set(MNIST_URL "http://yann.lecun.com/exdb/mnist")
-    set(MNIST_ARCHIVES
+    if(DOWNLOAD_MNIST)
+        file(MAKE_DIRECTORY ${DATA_DIR}/mnist)
+        set(MNIST_URL "http://yann.lecun.com/exdb/mnist")
+        set(MNIST_ARCHIVES
             "train-images-idx3-ubyte.gz"
             "train-labels-idx1-ubyte.gz"
             "t10k-images-idx3-ubyte.gz"
             "t10k-labels-idx1-ubyte.gz")
-    foreach(ARCHIVE ${MNIST_ARCHIVES})
-        message("-- Downloading from ${MNIST_URL}/${ARCHIVE}")
-        file(DOWNLOAD ${MNIST_URL}/${ARCHIVE} ${DATA_DIR}/mnist/${ARCHIVE})
-        execute_process (
+        foreach(ARCHIVE ${MNIST_ARCHIVES})
+            message("-- Downloading from ${MNIST_URL}/${ARCHIVE}")
+            file(DOWNLOAD ${MNIST_URL}/${ARCHIVE} ${DATA_DIR}/mnist/${ARCHIVE})
+            execute_process (
                 COMMAND bash -c "gunzip ${DATA_DIR}/mnist/${ARCHIVE}"
                 OUTPUT_VARIABLE outVar
-        )
-        execute_process (
+            )
+            execute_process (
                 COMMAND bash -c "rm ${DATA_DIR}/mnist/${ARCHIVE}"
                 OUTPUT_VARIABLE outVar
-        )
-    endforeach()
+            )
+        endforeach()
+    endif()
 endif()

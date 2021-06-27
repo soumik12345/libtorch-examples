@@ -33,6 +33,19 @@ public:
         return denseLayer2->forward(x);
     }
 
+    void save(const std::string& checkpointDir, const std::string& checkpointName) {
+        createDirectory(checkpointDir + "/model/" + checkpointName);
+        torch::save(denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
+        torch::save(denseLayer2, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
+    }
+
+    void load(const std::string& checkpointDir, const std::string& checkpointName) {
+        torch::load(
+                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
+        torch::load(
+                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
+    }
+
 };
 
 
@@ -98,10 +111,9 @@ public:
             auto batchAccuracy = static_cast<double>(numCorrect) / (double)numTrainSamples;
             lossHistory.push_back(meanBatchLoss);
             accuracyHistory.push_back(batchAccuracy);
-//            std::string modelCheckpoint = checkpointDirectory + "/model/logistic_regression_model_" + std::to_string(epoch) + ".pt";
-//            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
-//            torch::save(*model, modelCheckpoint);
-//            torch::save(*optimizer, optimizerCheckpoint);
+            (*model).save(checkpointDirectory, "mlp_classification_model_" + std::to_string(epoch));
+            std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
+            torch::save(*optimizer, optimizerCheckpoint);
             std::cout << "Epoch [" << epoch << "/" << numEpochs << "]";
             std::cout << ", Loss: " << batchLoss << ", Accuracy: " << batchAccuracy << std::endl;
         }
@@ -115,10 +127,11 @@ public:
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
         unsigned long numTestSamples = testDataset.size().value();
-        std::cout << "Number of Training Samples: " << numTestSamples << std::endl;
+        std::cout << "Number of Testing Samples: " << numTestSamples << std::endl;
         auto testLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 std::move(testDataset), batchSize);
 
+//        (*model).load("checkpoints", "mlp_classification_model_5");
         (*model).eval();
         torch::NoGradGuard noGrad;
 
