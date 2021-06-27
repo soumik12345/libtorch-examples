@@ -12,24 +12,27 @@
 
 #include "utils.hpp"
 
-struct MLP : torch::nn::Module {
+class MLP : public torch::nn::Module {
 
-    torch::nn::Linear *denseLayer1;
-    torch::nn::Linear *denseLayer2;
+private:
+    torch::nn::Linear denseLayer1;
+    torch::nn::Linear denseLayer2;
 
-    MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) {
-        denseLayer1 = new torch::nn::Linear(inputSize, hiddenSize);
-        denseLayer2 = new torch::nn::Linear(hiddenSize, numClasses);
-        register_module("denseLayer1", (*denseLayer1));
-        register_module("denseLayer2", (*denseLayer2));
+public:
+
+    MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) :
+    denseLayer1(inputSize, hiddenSize),
+    denseLayer2(hiddenSize, numClasses) {
+        register_module("denseLayer1", denseLayer1);
+        register_module("denseLayer2", denseLayer2);
     }
 
-    torch::Tensor forward(torch::Tensor x) const {
-        x = (*denseLayer1)->forward(x);
+    torch::Tensor forward(torch::Tensor x) {
+        x = denseLayer1->forward(x);
         x = torch::nn::functional::relu(x);
-        x = (*denseLayer2)->forward(x);
-        return x;
+        return denseLayer2->forward(x);
     }
+
 };
 
 
