@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th>MacOSX</th>
+    <th>MacOSX (AppleClang 12.0.0.12000032)</th>
     <th>Linux</th>
   </tr>
   <tr>
@@ -16,3 +16,5 @@
 2. [Logistic Regression](./libtorch-examples/include/logistic_regression.hpp)
 
 3. [Multi-Layered Perceptron](./libtorch-examples/include/multi_layered_perceptron.hpp)
+
+4. [Convnet Classifier](./libtorch-examples/include/convnet_classifier.hpp)

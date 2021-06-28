@@ -1,80 +1,90 @@
 //
-// Created by Soumik Rakshit on 26/06/21.
+// Created by Soumik Rakshit on 28/06/21.
 //
 
-#ifndef LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
-#define LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#ifndef LIBTORCH_EXAMPLES_CONVNET_CLASSIFIER_H
+#define LIBTORCH_EXAMPLES_CONVNET_CLASSIFIER_H
 
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <ctime>
 #include <torch/torch.h>
 #include "vendors/cpptqdm/tqdm.h"
 
 #include "utils.hpp"
 
-class MLP : public torch::nn::Module {
+class ConvNet : public torch::nn::Module {
 
 private:
-    torch::nn::Linear denseLayer1;
-    torch::nn::Linear denseLayer2;
+
+    torch::nn::Sequential convBlock1 {
+        torch::nn::Conv2d(
+                torch::nn::Conv2dOptions(
+                        1, 16, 5).stride(1).padding(2)),
+        torch::nn::BatchNorm2d(16), torch::nn::ReLU(),
+        torch::nn::MaxPool2d(
+                torch::nn::MaxPool2dOptions(2).stride(2))
+    };
+
+    torch::nn::Sequential convBlock2 {
+        torch::nn::Conv2d(
+                torch::nn::Conv2dOptions(
+                        16, 32, 5).stride(1).padding(2)),
+        torch::nn::BatchNorm2d(32), torch::nn::ReLU(),
+        torch::nn::MaxPool2d(
+                torch::nn::MaxPool2dOptions(2).stride(2))
+    };
+
+    torch::nn::Linear denseLayer;
 
 public:
 
-    MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) :
-    denseLayer1(inputSize, hiddenSize),
-    denseLayer2(hiddenSize, numClasses) {
-        register_module("denseLayer1", denseLayer1);
-        register_module("denseLayer2", denseLayer2);
+    explicit ConvNet(int64_t numClasses) : denseLayer(7 * 7 * 32, numClasses) {
+        register_module("convBlock1", convBlock1);
+        register_module("convBlock2", convBlock2);
+        register_module("denseLayer", denseLayer);
     }
 
     torch::Tensor forward(torch::Tensor x) {
-        x = denseLayer1->forward(x);
-        x = torch::nn::functional::relu(x);
-        return denseLayer2->forward(x);
+        x = convBlock1->forward(x);
+        x = convBlock2->forward(x);
+        x = x.view({-1, 7 * 7 * 32});
+        return denseLayer->forward(x);
     }
 
     void save(const std::string& checkpointDir, const std::string& checkpointName) {
         createDirectory(checkpointDir + "/model/" + checkpointName);
-        torch::save(denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
-        torch::save(denseLayer2, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
+        torch::save(convBlock1, checkpointDir + "/model/" + checkpointName + "/convBlock1.pt");
+        torch::save(convBlock2, checkpointDir + "/model/" + checkpointName + "/convBlock2.pt");
+        torch::save(denseLayer, checkpointDir + "/model/" + checkpointName + "/denseLayer.pt");
     }
-
-    void load(const std::string& checkpointDir, const std::string& checkpointName) {
-        torch::load(
-                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
-        torch::load(
-                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
-    }
-
 };
 
-
-class MLPClassifier {
+class ConvNetClassifier {
 
 public:
 
-    torch::Device *device;
-    MLP* model{};
-    torch::optim::SGD *optimizer{};
+    torch::Device *device{};
+    ConvNet *model{};
+    torch::optim::Adam *optimizer{};
     std::vector<double> lossHistory;
     std::vector<double> accuracyHistory;
 
-    MLPClassifier() {
+    ConvNetClassifier() {
         device = new torch::Device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
     }
 
-    void compile(int64_t inputImageSize, int64_t hiddenSize, double learningRate) {
-        model = new MLP(inputImageSize, hiddenSize, 10);
+    void compile(int64_t numClasses, double learningRate) {
+        model = new ConvNet(numClasses);
         (*model).to(*device);
-        optimizer = new torch::optim::SGD(
+        optimizer = new torch::optim::Adam(
                 (*model).parameters(),
-                torch::optim::SGDOptions(learningRate));
+                torch::optim::AdamOptions(learningRate));
     }
 
-    void train(
-            const std::string& mnistDataPath, int64_t batchSize,
-            size_t numEpochs, const std::string& checkpointDirectory) {
+    void train(const std::string& mnistDataPath, int64_t batchSize,
+               size_t numEpochs, const std::string& checkpointDirectory) {
 
         createDirectory(checkpointDirectory);
         createDirectory(checkpointDirectory + "/model");
@@ -83,7 +93,7 @@ public:
         auto trainDataset = torch::data::datasets::MNIST(mnistDataPath)
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
-        unsigned long numSamples = trainDataset.size().value();
+        auto numSamples = trainDataset.size().value();
         std::cout << "Number of Training Samples: " << numSamples << std::endl;
         auto trainLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 std::move(trainDataset), batchSize);
@@ -91,7 +101,7 @@ public:
         std::cout << std::fixed << std::setprecision(4);
         std::cout << "Training Started..." << std::endl;
 
-        for (size_t epoch = 1; epoch <= numEpochs; ++epoch) {
+        for(size_t epoch = 1; epoch <= numEpochs; ++epoch) {
 
             std::cout << "Epoch [" << epoch << "/" << numEpochs << "]" << std::endl;
 
@@ -102,8 +112,8 @@ public:
             clock_t startTime = std::clock();
             tqdm progressBar;
 
-            for (auto& batch : *trainLoader) {
-                auto data = batch.data.view({batchSize, -1}).to(*device);
+            for(auto& batch : *trainLoader) {
+                auto data = batch.data.to(*device);
                 auto target = batch.target.to(*device);
                 auto output = (*model).forward(data);
                 auto loss = torch::nn::functional::cross_entropy(output, target);
@@ -121,7 +131,7 @@ public:
             auto batchAccuracy = static_cast<double>(numCorrect) / (double)numSamples;
             lossHistory.push_back(meanBatchLoss);
             accuracyHistory.push_back(batchAccuracy);
-            (*model).save(checkpointDirectory, "mlp_classification_model_" + std::to_string(epoch));
+            (*model).save(checkpointDirectory, "convnet_classification_model_" + std::to_string(epoch));
             std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
             torch::save(*optimizer, optimizerCheckpoint);
             std::cout << ", Loss: " << meanBatchLoss << ", Accuracy: " << batchAccuracy;
@@ -154,7 +164,7 @@ public:
         int numBatches = numSamples / batchSize;
 
         for(auto& batch: *testLoader) {
-            auto data = batch.data.view({batchSize, -1}).to(*device);
+            auto data = batch.data.to(*device);
             auto target = batch.target.to(*device);
             auto output = (*model).forward(data);
             auto loss = torch::nn::functional::cross_entropy(output, target);
@@ -176,11 +186,11 @@ public:
     }
 };
 
-inline void MLPClassifierDemo() {
-    MLPClassifier classifier;
-    classifier.compile(784, 500, 0.001);
+inline void ConvNetClassifierDemo() {
+    ConvNetClassifier classifier;
+    classifier.compile(10, 0.001);
     classifier.train("../data/mnist", 100, 5, "checkpoints");
     classifier.evaluate("../data/mnist", 100);
 }
 
-#endif //LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#endif //LIBTORCH_EXAMPLES_CONVNET_CLASSIFIER_H

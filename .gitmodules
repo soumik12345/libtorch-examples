@@ -1,0 +1,3 @@
+[submodule "libtorch-examples/include/vendors/cpptqdm"]
+	path = libtorch-examples/include/vendors/cpptqdm
+	url = https://github.com/aminnj/cpptqdm
