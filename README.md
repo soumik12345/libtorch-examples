@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th>MacOSX (AppleClang 12.0.0.12000032)</th>
+    <th>MacOSX (Clang 12.0)</th>
     <th>Linux</th>
   </tr>
   <tr>
