@@ -9,7 +9,7 @@ option(DOWNLOAD_MNIST "Download the MNIST Dataset during build" ON)
 message("-- Installing Python Dependencies")
 if(INSTALL_PYTHON_DEPENDENCIES)
     execute_process (
-        COMMAND bash -c "pip install gdown --no-cache-dir"
+        COMMAND bash -c "pip install --upgrade pip gdown --no-cache-dir"
         OUTPUT_VARIABLE outVar
     )
 endif()
