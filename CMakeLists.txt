@@ -5,6 +5,7 @@ option(INSTALL_TORCH "Automatically download and install libtorch." ON)
 option(CUDA "Download GPU Version" ON)
 option(INSTALL_PYTHON_DEPENDENCIES "Install Python Dependencies during build" ON)
 option(DOWNLOAD_MNIST "Download the MNIST Dataset during build" ON)
+#option(DOWNLOAD_CIFAR10 "Download the CIFAR10 Dataset during build" ON)
 
 message("-- Installing Python Dependencies")
 if(INSTALL_PYTHON_DEPENDENCIES)
@@ -78,6 +79,18 @@ if(DOWNLOAD_MNIST)
         OUTPUT_VARIABLE outVar
     )
 endif()
+
+#if(DOWNLOAD_CIFAR10)
+#    message("-- Downloading CIFAR10 Dataset")
+#    execute_process (
+#            COMMAND bash -c "gdown https://drive.google.com/uc?id=1A45Gz3v6cEAvl-7THyK0LFRhndac16xj"
+#            OUTPUT_VARIABLE outVar
+#    )
+#    execute_process (
+#            COMMAND bash -c "gdown https://drive.google.com/uc?id=1A45Gz3v6cEAvl-7THyK0LFRhndac16xj"
+#            OUTPUT_VARIABLE outVar
+#    )
+#endif()
 
 # Linear Regression
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/linear-regression)
