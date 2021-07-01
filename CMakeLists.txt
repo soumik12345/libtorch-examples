@@ -83,3 +83,8 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/linear-regression)
 add_custom_target(linear_regression)
 add_dependencies(linear_regression linear-regression)
+
+# Logistic Regression
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/logistic-regression)
+add_custom_target(logistic_regression)
+add_dependencies(logistic_regression logistic-regression)
