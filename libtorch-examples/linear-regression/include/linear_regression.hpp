@@ -1,5 +1,5 @@
-#ifndef SAMPLE_HPP
-#define SAMPLE_HPP
+#ifndef LINEAR_REGRESSION_HPP
+#define LINEAR_REGRESSION_HPP
 
 #include <iostream>
 #include <torch/torch.h>
@@ -13,9 +13,9 @@ public:
     torch::Tensor xTrain;
     torch::Tensor yTrain;
     torch::Device *device;
-    torch::nn::Linear *model;
-    torch::optim::SGD *optimizer;
-    std::vector<float> lossHistory;
+    torch::nn::Linear *model{};
+    torch::optim::SGD *optimizer{};
+    std::vector<double> lossHistory;
 
     LinearRegression(int64_t dataLow, int64_t dataHigh, int datasetSize) {
         device = new torch::Device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
@@ -51,4 +51,4 @@ public:
     }
 };
 
-#endif //SAMPLE_HPP
+#endif //LINEAR_REGRESSION_HPP
