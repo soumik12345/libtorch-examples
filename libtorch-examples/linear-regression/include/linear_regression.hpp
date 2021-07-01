@@ -1,13 +1,7 @@
-//
-// Created by geekyrakshit on 6/23/21.
-//
-
-#ifndef TORCH_CPP_LINEAR_REGRESSION_HPP
-#define TORCH_CPP_LINEAR_REGRESSION_HPP
+#ifndef LINEAR_REGRESSION_HPP
+#define LINEAR_REGRESSION_HPP
 
 #include <iostream>
-#include <vector>
-#include <cstring>
 #include <torch/torch.h>
 
 #include "utils.hpp"
@@ -18,10 +12,10 @@ public:
 
     torch::Tensor xTrain;
     torch::Tensor yTrain;
-    std::vector<float> lossHistory;
     torch::Device *device;
-    torch::nn::Linear *model;
-    torch::optim::SGD *optimizer;
+    torch::nn::Linear *model{};
+    torch::optim::SGD *optimizer{};
+    std::vector<double> lossHistory;
 
     LinearRegression(int64_t dataLow, int64_t dataHigh, int datasetSize) {
         device = new torch::Device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
@@ -35,7 +29,7 @@ public:
         optimizer = new torch::optim::SGD((*model)->parameters(), learningRate);
     }
 
-    void train(size_t numEpochs, std::string checkpointDirectory) {
+    void train(size_t numEpochs, const std::string& checkpointDirectory) {
         createDirectory(checkpointDirectory);
         createDirectory(checkpointDirectory + "/model");
         createDirectory(checkpointDirectory + "/optimizer");
@@ -55,13 +49,6 @@ public:
         }
         std::cout << "Training Done!!!" << std::endl;
     }
-
 };
 
-inline void LinearRegressionDemo() {
-    LinearRegression linearRegression(0, 10, 15);
-    linearRegression.compile(0.001);
-    linearRegression.train(60, "checkpoints");
-}
-
-#endif //TORCH_CPP_LINEAR_REGRESSION_HPP
+#endif //LINEAR_REGRESSION_HPP

@@ -3,18 +3,87 @@
 <table>
   <tr>
     <th>MacOSX (Clang 12.0)</th>
-    <th>Linux</th>
+    <th>Linux (Cuda 11)</th>
+    <th>Linux (gcc 9.3)</th>
   </tr>
   <tr>
-    <td><img src="https://camo.githubusercontent.com/5ce01fbc787bc0f3ff51358ff9a00ad4ada15b08e9c987e9760328fb9667435d/68747470733a2f2f7472617669732d6d61747269782d6261646765732e6865726f6b756170702e636f6d2f7265706f732f7072616268756f6d6b61722f7079746f7263682d6370702f6272616e636865732f6d61737465722f37"></td>
-    <td><img src="https://camo.githubusercontent.com/5ce01fbc787bc0f3ff51358ff9a00ad4ada15b08e9c987e9760328fb9667435d/68747470733a2f2f7472617669732d6d61747269782d6261646765732e6865726f6b756170702e636f6d2f7265706f732f7072616268756f6d6b61722f7079746f7263682d6370702f6272616e636865732f6d61737465722f37"></td>
+    <td><img src="https://img.shields.io/badge/build-failing-red" alt="build-failing"></td>
+    <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+    <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
   </tr>
 </table>
 
-1. [Linear Regression](./libtorch-examples/include/linear_regression.hpp)
+## Instructions
 
-2. [Logistic Regression](./libtorch-examples/include/logistic_regression.hpp)
+### Build and Compile
 
-3. [Multi-Layered Perceptron](./libtorch-examples/include/multi_layered_perceptron.hpp)
+1. `git clone https://github.com/soumik12345/libtorch-examples --recursive`
 
-4. [Convnet Classifier](./libtorch-examples/include/convnet_classifier.hpp)
+2. `cmake -DINSTALL_TORCH=true -DCUDA=true -DINSTALL_PYTHON_DEPENDENCIES=true -DDOWNLOAD_MNIST=true ../`
+
+    - `-DINSTALL_TORCH` -> Automatically download and install libtorch during build.
+    - `-DCUDA` -> Download GPU Version of LibTorch.
+    - `-DINSTALL_PYTHON_DEPENDENCIES` -> Install Python Dependencies during build.
+    - `-DDOWNLOAD_MNIST` -> Download the MNIST Dataset during build.
+    
+3. `make`
+
+### Run Executables
+
+<table>
+    <tr>
+        <th>Implementation</th>
+        <th>Build Status</th>
+        <th>Run Instructions</th>
+        <th>MNIST</th>
+        <th>CIFAR10</th>
+    </tr>
+    <tr>
+        <td><a href="./libtorch-examples/linear-regression">Linear Regression</a></td>
+        <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+        <td>
+            <ol>
+                <li><code>cd build</code></li>
+                <li><code>./libtorch-examples/linear-regression/linear-regression</code></li>
+            </ol>
+        </td>
+        <td>&#10060;</td>
+        <td>&#10060;</td>
+    </tr>
+    <tr>
+        <td><a href="./libtorch-examples/logistic-regression">Logistic Regression</a></td>
+        <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+        <td>
+            <ol>
+                <li><code>cd ./build/libtorch-examples/logistic-regression</code></li>
+                <li><code>./logistic-regression</code></li>
+            </ol>
+        </td>
+        <td>&#9989;</td>
+        <td>&#9202;</td>
+    </tr>
+    <tr>
+        <td><a href="./libtorch-examples/multi-layered-perceptron">Multi-Layered Perceptron</a></td>
+        <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+        <td>
+            <ol>
+                <li><code>cd ./build/libtorch-examples/multi-layered-perceptron</code></li>
+                <li><code>./multi-layered-perceptron</code></li>
+            </ol>
+        </td>
+        <td>&#9989;</td>
+        <td>&#9202;</td>
+    </tr>
+    <tr>
+        <td><a href="./libtorch-examples/convnet">Convolutional Neural Network</a></td>
+        <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+        <td>
+            <ol>
+                <li><code>cd ./build/libtorch-examples/convnet</code></li>
+                <li><code>./convnet</code></li>
+            </ol>
+        </td>
+        <td>&#9989;</td>
+        <td>&#9202;</td>
+    </tr>
+</table>

@@ -1,10 +1,18 @@
 cmake_minimum_required(VERSION 3.19)
 project(libtorch-examples)
 
-option(DOWNLOAD_DATASETS "Automatically download required datasets at build-time." ON)
 option(INSTALL_TORCH "Automatically download and install libtorch." ON)
 option(CUDA "Download GPU Version" ON)
-option(DOWNLOAD_MNIST, "Download the MNIST Dataset during build" ON)
+option(INSTALL_PYTHON_DEPENDENCIES "Install Python Dependencies during build" ON)
+option(DOWNLOAD_MNIST "Download the MNIST Dataset during build" ON)
+
+message("-- Installing Python Dependencies")
+if(INSTALL_PYTHON_DEPENDENCIES)
+    execute_process (
+        COMMAND bash -c "pip install --upgrade pip gdown --no-cache-dir"
+        OUTPUT_VARIABLE outVar
+    )
+endif()
 
 if(INSTALL_TORCH)
     if(APPLE)
@@ -40,7 +48,7 @@ if(INSTALL_TORCH)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
-set(EXECUTABLE_NAME libtorch-examples)
+set(EXECUTABLE_NAME main)
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/libtorch)
 
 include_directories(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libtorch-examples/include)
@@ -51,30 +59,42 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 add_executable(${EXECUTABLE_NAME} main.cpp)
 target_link_libraries(${EXECUTABLE_NAME} "${TORCH_LIBRARIES}")
 
-if(DOWNLOAD_DATASETS)
+set(DATA_DIR ${CMAKE_SOURCE_DIR}/data CACHE PATH "Dataset download directory")
+file(MAKE_DIRECTORY ${DATA_DIR})
 
-    set(DATA_DIR ${CMAKE_SOURCE_DIR}/data CACHE PATH "Dataset download directory")
-    file(MAKE_DIRECTORY ${DATA_DIR})
-
-    if(DOWNLOAD_MNIST)
-        file(MAKE_DIRECTORY ${DATA_DIR}/mnist)
-        set(MNIST_URL "http://yann.lecun.com/exdb/mnist")
-        set(MNIST_ARCHIVES
-            "train-images-idx3-ubyte.gz"
-            "train-labels-idx1-ubyte.gz"
-            "t10k-images-idx3-ubyte.gz"
-            "t10k-labels-idx1-ubyte.gz")
-        foreach(ARCHIVE ${MNIST_ARCHIVES})
-            message("-- Downloading from ${MNIST_URL}/${ARCHIVE}")
-            file(DOWNLOAD ${MNIST_URL}/${ARCHIVE} ${DATA_DIR}/mnist/${ARCHIVE})
-            execute_process (
-                COMMAND bash -c "gunzip ${DATA_DIR}/mnist/${ARCHIVE}"
-                OUTPUT_VARIABLE outVar
-            )
-            execute_process (
-                COMMAND bash -c "rm ${DATA_DIR}/mnist/${ARCHIVE}"
-                OUTPUT_VARIABLE outVar
-            )
-        endforeach()
-    endif()
+if(DOWNLOAD_MNIST)
+    message("-- Downloading MNIST Dataset")
+    execute_process (
+        COMMAND bash -c "gdown https://drive.google.com/uc?id=1aCeLWoq8dAT-_AXocbvWPj5T4JE3jdgS"
+        OUTPUT_VARIABLE outVar
+    )
+    message("-- Expanding MNIST Dataset")
+    execute_process (
+        COMMAND bash -c "unzip mnist.zip -d ${DATA_DIR}"
+        OUTPUT_VARIABLE outVar
+    )
+    execute_process (
+        COMMAND bash -c "rm ./mnist.zip"
+        OUTPUT_VARIABLE outVar
+    )
 endif()
+
+# Linear Regression
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/linear-regression)
+add_custom_target(linear_regression)
+add_dependencies(linear_regression linear-regression)
+
+# Logistic Regression
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/logistic-regression)
+add_custom_target(logistic_regression)
+add_dependencies(logistic_regression logistic-regression)
+
+# Multi-Layered Perceptron
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/multi-layered-perceptron)
+add_custom_target(mlp_example)
+add_dependencies(mlp_example multi-layered-perceptron)
+
+# Convnet-Classification
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/convnet)
+add_custom_target(convnet_example)
+add_dependencies(convnet_example convnet)

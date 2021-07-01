@@ -1,16 +1,14 @@
-//
-// Created by Soumik Rakshit on 26/06/21.
-//
+#ifndef LOGISTIC_REGRESSION_HPP
+#define LOGISTIC_REGRESSION_HPP
 
-#ifndef LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
-#define LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
-
-#include <iostream>
+#include <ctime>
 #include <vector>
 #include <cstring>
+#include <iostream>
 #include <torch/torch.h>
 
 #include "utils.hpp"
+#include "vendors/cpptqdm/tqdm.h"
 
 class LogisticRegression {
 
@@ -45,8 +43,8 @@ public:
         auto trainDataset = torch::data::datasets::MNIST(mnistDataPath)
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
-        unsigned long numTrainSamples = trainDataset.size().value();
-        std::cout << "Number of Training Samples: " << numTrainSamples << std::endl;
+        unsigned long numSamples = trainDataset.size().value();
+        std::cout << "Number of Training Samples: " << numSamples << std::endl;
         auto trainLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 std::move(trainDataset), batchSize);
 
@@ -55,8 +53,14 @@ public:
 
         for (size_t epoch = 1; epoch <= numEpochs; ++epoch) {
 
+            std::cout << "Epoch [" << epoch << "/" << numEpochs << "]" << std::endl;
+
             double batchLoss = 0.0;
             size_t numCorrect = 0;
+            int numBatches = numSamples / batchSize;
+            clock_t startTime = std::clock();
+            tqdm progressBar;
+            int batchCounter = 0;
 
             for (auto& batch : *trainLoader) {
                 auto data = batch.data.view({batchSize, -1}).to(*device);
@@ -69,17 +73,20 @@ public:
                 (*optimizer).zero_grad();
                 loss.backward();
                 (*optimizer).step();
+                progressBar.progress(++batchCounter, numBatches);
             }
-            auto meanBatchLoss = batchLoss / (double)numTrainSamples;
-            auto batchAccuracy = static_cast<double>(numCorrect) / (double)numTrainSamples;
+
+            progressBar.finish();
+            auto meanBatchLoss = batchLoss / (double)numSamples;
+            auto batchAccuracy = static_cast<double>(numCorrect) / (double)numSamples;
             lossHistory.push_back(meanBatchLoss);
             accuracyHistory.push_back(batchAccuracy);
             std::string modelCheckpoint = checkpointDirectory + "/model/logistic_regression_model_" + std::to_string(epoch) + ".pt";
             std::string optimizerCheckpoint = checkpointDirectory + "/optimizer/logistic_regression_optimizer_" + std::to_string(epoch) + ".pt";
             torch::save(*model, modelCheckpoint);
             torch::save(*optimizer, optimizerCheckpoint);
-            std::cout << "Epoch [" << epoch << "/" << numEpochs << "]";
-            std::cout << ", Loss: " << batchLoss << ", Accuracy: " << batchAccuracy << std::endl;
+            std::cout << ", Loss: " << meanBatchLoss << ", Accuracy: " << batchAccuracy;
+            std::cout << ", Time Taken: " << float(std::clock() - startTime) / CLOCKS_PER_SEC << " seconds" << std::endl;
         }
 
         std::cout << "Training Completed!!!" << std::endl;
@@ -89,8 +96,8 @@ public:
         auto testDataset = torch::data::datasets::MNIST(mnistDataPath)
                 .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
                 .map(torch::data::transforms::Stack<>());
-        unsigned long numTestSamples = testDataset.size().value();
-        std::cout << "Number of Training Samples: " << numTestSamples << std::endl;
+        unsigned long numSamples = testDataset.size().value();
+        std::cout << "Number of Training Samples: " << numSamples << std::endl;
         auto testLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 std::move(testDataset), batchSize);
 
@@ -99,6 +106,10 @@ public:
 
         double totalLoss = 0.0;
         size_t numCorrect = 0;
+        clock_t startTime = std::clock();
+        int batchCounter = 0;
+        int numBatches = numSamples / batchSize;
+        tqdm progressBar;
 
         std::cout << "Evaluation Started..." << std::endl;
 
@@ -110,23 +121,19 @@ public:
             totalLoss += loss.item<double>() * (double)data.size(0);
             auto prediction = output.argmax(1);
             numCorrect += prediction.eq(target).sum().item<int64_t>();
+            progressBar.progress(++batchCounter, numBatches);
         }
 
-        std::cout << "Evaluation Completed!!!" << std::endl;
+        progressBar.finish();
 
-        auto testAccuracy = static_cast<double>(numCorrect) / (double)numTestSamples;
-        auto meanLoss = totalLoss / (double)numTestSamples;
+        std::cout << "Evaluation Completed!!!" << std::endl;
+        std::cout << "Time Taken: " << float(std::clock() - startTime) / CLOCKS_PER_SEC << " seconds" << std::endl;
+
+        auto testAccuracy = static_cast<double>(numCorrect) / (double)numSamples;
+        auto meanLoss = totalLoss / (double)numSamples;
 
         std::cout << "On Test Dataset, Mean Loss: " << meanLoss << ", Accuracy: " << testAccuracy << std::endl;
     }
 };
 
-inline void LogisticRegressionDemo() {
-    LogisticRegression logisticRegression;
-    logisticRegression.compile(784, 0.001);
-    logisticRegression.train(
-            "../data/mnist", 100, 5, "checkpoints");
-    logisticRegression.evaluate("../data/mnist", 100);
-}
-
-#endif //LIBTORCH_EXAMPLES_LOGISTIC_REGRESSION_HPP
+#endif //LOGISTIC_REGRESSION_HPP

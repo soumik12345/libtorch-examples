@@ -1,9 +1,5 @@
-//
-// Created by Soumik Rakshit on 26/06/21.
-//
-
-#ifndef LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
-#define LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#ifndef MLP_CLASSIFIER_HPP
+#define MLP_CLASSIFIER_HPP
 
 #include <iostream>
 #include <vector>
@@ -11,43 +7,8 @@
 #include <torch/torch.h>
 #include "vendors/cpptqdm/tqdm.h"
 
+#include "mlp.hpp"
 #include "utils.hpp"
-
-class MLP : public torch::nn::Module {
-
-private:
-    torch::nn::Linear denseLayer1;
-    torch::nn::Linear denseLayer2;
-
-public:
-
-    MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) :
-    denseLayer1(inputSize, hiddenSize),
-    denseLayer2(hiddenSize, numClasses) {
-        register_module("denseLayer1", denseLayer1);
-        register_module("denseLayer2", denseLayer2);
-    }
-
-    torch::Tensor forward(torch::Tensor x) {
-        x = denseLayer1->forward(x);
-        x = torch::nn::functional::relu(x);
-        return denseLayer2->forward(x);
-    }
-
-    void save(const std::string& checkpointDir, const std::string& checkpointName) {
-        createDirectory(checkpointDir + "/model/" + checkpointName);
-        torch::save(denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
-        torch::save(denseLayer2, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
-    }
-
-    void load(const std::string& checkpointDir, const std::string& checkpointName) {
-        torch::load(
-                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer1.pt");
-        torch::load(
-                denseLayer1, checkpointDir + "/model/" + checkpointName + "/denseLayer2.pt");
-    }
-
-};
 
 
 class MLPClassifier {
@@ -176,11 +137,4 @@ public:
     }
 };
 
-inline void MLPClassifierDemo() {
-    MLPClassifier classifier;
-    classifier.compile(784, 500, 0.001);
-    classifier.train("../data/mnist", 100, 5, "checkpoints");
-    classifier.evaluate("../data/mnist", 100);
-}
-
-#endif //LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#endif // MLP_CLASSIFIER_HPP
