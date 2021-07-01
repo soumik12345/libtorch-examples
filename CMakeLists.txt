@@ -93,3 +93,8 @@ add_dependencies(logistic_regression logistic-regression)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/multi-layered-perceptron)
 add_custom_target(mlp_example)
 add_dependencies(mlp_example multi-layered-perceptron)
+
+# Convnet-Classification
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/convnet)
+add_custom_target(convnet_example)
+add_dependencies(convnet_example convnet)

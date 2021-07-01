@@ -137,4 +137,4 @@ public:
     }
 };
 
-#endif // MLP_HPP
+#endif // MLP_CLASSIFIER_HPP

@@ -6,8 +6,8 @@
     <th>Linux</th>
   </tr>
   <tr>
-    <td><img src="https://img.shields.io/badge/build-failing-red"></td>
-    <td><img src="https://img.shields.io/badge/build-passing-green"></td>
+    <td><img src="https://img.shields.io/badge/build-failing-red" alt="build-failing"></td>
+    <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
   </tr>
 </table>
 
@@ -17,4 +17,4 @@
 
 3. [Multi-Layered Perceptron](./libtorch-examples/multi-layered-perceptron)
 
-4. [Convnet Classifier](./libtorch-examples/include/convnet_classifier.hpp)
+4. [Convnet Classifier](./libtorch-examples/convnet)
