@@ -1,6 +1,6 @@
-#include "multi_layered_perceptron.hpp"
+#include <iostream>
 
 int main() {
-    MLPClassifierDemo();
+    std::cout << "Libtorch Examples" << std::endl;
     return 0;
 }

@@ -48,7 +48,7 @@ if(INSTALL_TORCH)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
-set(EXECUTABLE_NAME libtorch-examples-executable)
+set(EXECUTABLE_NAME main)
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/libtorch)
 
 include_directories(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libtorch-examples/include)
@@ -79,4 +79,7 @@ if(DOWNLOAD_MNIST)
     )
 endif()
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/project1)
+# Linear Regression
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/linear-regression)
+add_custom_target(linear_regression)
+add_dependencies(linear_regression linear-regression)
