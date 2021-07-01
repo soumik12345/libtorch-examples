@@ -1,9 +1,5 @@
-//
-// Created by Soumik Rakshit on 26/06/21.
-//
-
-#ifndef LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
-#define LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#ifndef MLP_HPP
+#define MLP_HPP
 
 #include <iostream>
 #include <vector>
@@ -22,8 +18,8 @@ private:
 public:
 
     MLP(int64_t inputSize, int64_t hiddenSize, int64_t numClasses) :
-    denseLayer1(inputSize, hiddenSize),
-    denseLayer2(hiddenSize, numClasses) {
+            denseLayer1(inputSize, hiddenSize),
+            denseLayer2(hiddenSize, numClasses) {
         register_module("denseLayer1", denseLayer1);
         register_module("denseLayer2", denseLayer2);
     }
@@ -176,11 +172,4 @@ public:
     }
 };
 
-inline void MLPClassifierDemo() {
-    MLPClassifier classifier;
-    classifier.compile(784, 500, 0.001);
-    classifier.train("../data/mnist", 100, 5, "checkpoints");
-    classifier.evaluate("../data/mnist", 100);
-}
-
-#endif //LIBTORCH_EXAMPLES_MULTI_LAYERED_PERCEPTRON_HPP
+#endif // MLP_HPP

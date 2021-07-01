@@ -88,3 +88,8 @@ add_dependencies(linear_regression linear-regression)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/logistic-regression)
 add_custom_target(logistic_regression)
 add_dependencies(logistic_regression logistic-regression)
+
+# Multi-Layered Perceptron
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libtorch-examples/multi-layered-perceptron)
+add_custom_target(mlp_example)
+add_dependencies(mlp_example multi-layered-perceptron)
