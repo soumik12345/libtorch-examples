@@ -1,17 +1,5 @@
 name: build-cmake-macos
-on:
-  push:
-    branches:
-      - master
-      - develop
-    paths:
-      - libtorch-examples/**
-  pull_request:
-    branches:
-      - master
-      - develop
-    paths:
-      - libtorch-examples/**
+on: [push]
 jobs:
   build-using-cmake-on-macos:
     runs-on: macos-latest
