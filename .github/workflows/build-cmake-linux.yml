@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip && unzip libtorch-cxx11-abi-shared-with-deps-1.8.1+cpu.zip && rm libtorch-cxx11-abi-shared-with-deps-1.8.1+cpu.zip && ls -l && cd libtorch-examples/include/vendors && git clone https://github.com/aminnj/cpptqdm && cd ../../../ && mkdir build && cd build && cmake -DINSTALL_TORCH=false -DCUDA=false -DINSTALL_PYTHON_DEPENDENCIES=false -DDOWNLOAD_MNIST=false ../ && make
+      - run: sh build-cmake.sh
