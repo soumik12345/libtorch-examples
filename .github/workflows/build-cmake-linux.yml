@@ -1,0 +1,20 @@
+name: build-cmake-linux
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - libtorch-examples/**
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - libtorch-examples/**
+jobs:
+  build-using-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: mkdir build && cd build && cmake -DINSTALL_TORCH=true -DCUDA=false -DINSTALL_PYTHON_DEPENDENCIES=false -DDOWNLOAD_MNIST=false ../ && make
