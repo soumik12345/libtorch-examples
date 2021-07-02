@@ -1,0 +1,22 @@
+name: build-cmake-linux
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - libtorch-examples/**
+      - .github/**
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - libtorch-examples/**
+      - .github/**
+jobs:
+  build-using-cmake-on-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sh build-linux.sh
