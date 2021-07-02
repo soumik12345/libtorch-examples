@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sh ${{github.workspace}}/build.sh
+      - run: sh build.sh
