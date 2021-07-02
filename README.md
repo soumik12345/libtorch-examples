@@ -7,9 +7,9 @@
     <th>Linux (gcc 9.3)</th>
   </tr>
   <tr>
-    <td><img src="https://img.shields.io/badge/build-failing-red" alt="build-failing"></td>
+    <td><img src="https://github.com/soumik12345/libtorch-examples/workflows/build-cmake-macos/badge.svg" alt="build-failing"></td>
     <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
-    <td><img src="https://img.shields.io/badge/build-passing-green" alt="build-failing"></td>
+    <td><img src="https://github.com/soumik12345/libtorch-examples/workflows/build-cmake-linux/badge.svg" alt="build-failing"></td>
   </tr>
 </table>
 

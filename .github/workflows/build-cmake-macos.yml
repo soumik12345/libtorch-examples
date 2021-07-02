@@ -1,4 +1,4 @@
-name: build-cmake-linux
+name: build-cmake-macos
 on: [push]
 jobs:
   build-using-cmake-on-macos:
