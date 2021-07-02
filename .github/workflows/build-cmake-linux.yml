@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip && ls -l && rm libtorch-cxx11-abi-shared-with-deps-1.8.1+cpu.zip
+      - run: wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip && rm libtorch-cxx11-abi-shared-with-deps-1.8.1+cpu.zip && ls -l
