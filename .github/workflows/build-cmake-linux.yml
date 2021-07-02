@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: mkdir build && cd build && cmake -DINSTALL_TORCH=true -DCUDA=false -DINSTALL_PYTHON_DEPENDENCIES=false -DDOWNLOAD_MNIST=false ../ && make
+      - run: sh ${{github.workspace}}/build.sh
