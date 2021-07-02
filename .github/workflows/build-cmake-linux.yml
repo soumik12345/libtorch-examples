@@ -1,7 +1,7 @@
 name: build-cmake-linux
 on: [push]
 jobs:
-  build-using-cmake:
+  build-using-cmake-on-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
