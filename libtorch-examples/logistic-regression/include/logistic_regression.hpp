@@ -8,6 +8,7 @@
 #include <torch/torch.h>
 
 #include "utils.hpp"
+#include "mnist.hpp"
 #include "vendors/cpptqdm/tqdm.h"
 
 class LogisticRegression {
@@ -40,9 +41,7 @@ public:
         createDirectory(checkpointDirectory + "/model");
         createDirectory(checkpointDirectory + "/optimizer");
 
-        auto trainDataset = torch::data::datasets::MNIST(mnistDataPath)
-                .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                .map(torch::data::transforms::Stack<>());
+        auto trainDataset = MNIST::getDataset(mnistDataPath, true);
         unsigned long numSamples = trainDataset.size().value();
         std::cout << "Number of Training Samples: " << numSamples << std::endl;
         auto trainLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
@@ -93,9 +92,7 @@ public:
     }
 
     void evaluate(const std::string& mnistDataPath, int64_t batchSize) const {
-        auto testDataset = torch::data::datasets::MNIST(mnistDataPath)
-                .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                .map(torch::data::transforms::Stack<>());
+        auto testDataset = MNIST::getDataset(mnistDataPath, false);
         unsigned long numSamples = testDataset.size().value();
         std::cout << "Number of Training Samples: " << numSamples << std::endl;
         auto testLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
