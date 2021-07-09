@@ -58,7 +58,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 add_executable(${EXECUTABLE_NAME} main.cpp)
 target_link_libraries(${EXECUTABLE_NAME} "${TORCH_LIBRARIES}")
-target_link_libraries(${EXECUTABLE_NAME} stdc++fs)
+if (NOT APPLE)
+    target_link_libraries(${EXECUTABLE_NAME} stdc++fs)
+endif ()
 
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data CACHE PATH "Dataset download directory")
 file(MAKE_DIRECTORY ${DATA_DIR})
