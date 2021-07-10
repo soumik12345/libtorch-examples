@@ -8,6 +8,8 @@
 #include <torch/torch.h>
 
 #include "utils.hpp"
+#include "mnist.hpp"
+#include "cifar10.hpp"
 #include "vendors/cpptqdm/tqdm.h"
 
 class LogisticRegression {
@@ -33,20 +35,17 @@ public:
     }
 
     void train(
-            const std::string& mnistDataPath, int64_t batchSize,
+            const std::string& dataPath, int64_t batchSize,
             size_t numEpochs, const std::string& checkpointDirectory) {
 
         createDirectory(checkpointDirectory);
         createDirectory(checkpointDirectory + "/model");
         createDirectory(checkpointDirectory + "/optimizer");
 
-        auto trainDataset = torch::data::datasets::MNIST(mnistDataPath)
-                .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                .map(torch::data::transforms::Stack<>());
-        unsigned long numSamples = trainDataset.size().value();
+        MNIST mnistDataset;
+        MNIST::DataLoaderType dataLoader = mnistDataset.getDataLoader(dataPath, batchSize, true);
+        unsigned long numSamples = mnistDataset.numSamples;
         std::cout << "Number of Training Samples: " << numSamples << std::endl;
-        auto trainLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
-                std::move(trainDataset), batchSize);
 
         std::cout << std::fixed << std::setprecision(4);
         std::cout << "Training Started..." << std::endl;
@@ -62,7 +61,7 @@ public:
             tqdm progressBar;
             int batchCounter = 0;
 
-            for (auto& batch : *trainLoader) {
+            for (auto& batch : *dataLoader) {
                 auto data = batch.data.view({batchSize, -1}).to(*device);
                 auto target = batch.target.to(*device);
                 auto output = (*model)->forward(data);
@@ -92,14 +91,11 @@ public:
         std::cout << "Training Completed!!!" << std::endl;
     }
 
-    void evaluate(const std::string& mnistDataPath, int64_t batchSize) const {
-        auto testDataset = torch::data::datasets::MNIST(mnistDataPath)
-                .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                .map(torch::data::transforms::Stack<>());
-        unsigned long numSamples = testDataset.size().value();
-        std::cout << "Number of Training Samples: " << numSamples << std::endl;
-        auto testLoader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
-                std::move(testDataset), batchSize);
+    void evaluate(const std::string& dataPath, int64_t batchSize) const {
+        MNIST mnistDataset;
+        MNIST::DataLoaderType dataLoader = mnistDataset.getDataLoader(dataPath, batchSize, false);
+        unsigned long numSamples = mnistDataset.numSamples;
+        std::cout << "Number of Samples for Evaluation: " << numSamples << std::endl;
 
         (*model)->eval();
         torch::NoGradGuard noGrad;
@@ -113,7 +109,7 @@ public:
 
         std::cout << "Evaluation Started..." << std::endl;
 
-        for(auto& batch: *testLoader) {
+        for(auto& batch: *dataLoader) {
             auto data = batch.data.view({batchSize, -1}).to(*device);
             auto target = batch.target.to(*device);
             auto output = (*model)->forward(data);
