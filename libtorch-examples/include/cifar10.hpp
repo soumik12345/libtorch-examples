@@ -73,7 +73,7 @@ public:
             targets.to(torch::kInt64)};
     }
 
-    torch::optional<size_t> size() const {
+    torch::optional<size_t> size() const override {
         return _images.size(0);
     }
 
@@ -90,6 +90,10 @@ public:
 
     torch::Tensor& getTargets() {
         return _targets;
+    }
+
+    bool getMode() const {
+        return this->isTrain;
     }
 };
 
